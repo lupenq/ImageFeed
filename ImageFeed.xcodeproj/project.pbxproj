@@ -7,12 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		77D75CA42EFD80A000A34C3D /* .gitignore.txt in Resources */ = {isa = PBXBuildFile; fileRef = 77D75CA32EFD80A000A34C3D /* .gitignore.txt */; };
+		77D75CA42EFD80A000A34C3D /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 77D75CA32EFD80A000A34C3D /* .gitignore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		77D75C8B2EFD7D9600A34C3D /* ImageFeed.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ImageFeed.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		77D75CA32EFD80A000A34C3D /* .gitignore.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore.txt; sourceTree = "<group>"; };
+		77D75CA32EFD80A000A34C3D /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -50,7 +50,7 @@
 		77D75C822EFD7D9600A34C3D = {
 			isa = PBXGroup;
 			children = (
-				77D75CA32EFD80A000A34C3D /* .gitignore.txt */,
+				77D75CA32EFD80A000A34C3D /* .gitignore */,
 				77D75C8D2EFD7D9600A34C3D /* ImageFeed */,
 				77D75C8C2EFD7D9600A34C3D /* Products */,
 			);
@@ -128,7 +128,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				77D75CA42EFD80A000A34C3D /* .gitignore.txt in Resources */,
+				77D75CA42EFD80A000A34C3D /* .gitignore in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
