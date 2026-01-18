@@ -8,6 +8,8 @@
 import UIKit
 
 class ImagesListViewController: UIViewController {
+    private let showSingleImageSegueIdentifier = "ShowSingleImage"
+
     private let photosName: [String] = Array(0 ..< 20).map { "\($0)" }
 
     @IBOutlet private var tableView: UITableView!
@@ -43,6 +45,23 @@ class ImagesListViewController: UIViewController {
             cell.likeButtonView.setImage(UIImage(named: "Favorite Inactive"), for: .normal)
         }
     }
+
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == showSingleImageSegueIdentifier { // 1
+            guard
+                let viewController = segue.destination as? SingleImageViewController, // 2
+                let indexPath = sender as? IndexPath // 3
+            else {
+                assertionFailure("Invalid segue destination") // 4
+                return
+            }
+
+            let image = UIImage(named: photosName[indexPath.row]) // 5
+            viewController.image = image // 6
+        } else {
+            super.prepare(for: segue, sender: sender) // 7
+        }
+    }
 }
 
 extension ImagesListViewController: UITableViewDataSource {
@@ -63,7 +82,9 @@ extension ImagesListViewController: UITableViewDataSource {
 }
 
 extension ImagesListViewController: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {}
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        performSegue(withIdentifier: showSingleImageSegueIdentifier, sender: indexPath)
+    }
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         if let image = UIImage(named: photosName[indexPath.row]) {
