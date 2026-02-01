@@ -21,6 +21,7 @@ final class OAuth2Service {
 
     private func makeOAuthTokenRequest(code: String) -> URLRequest? {
         guard var urlComponents = URLComponents(string: "https://unsplash.com/oauth/token") else {
+            print("Failed to create URLComponents for OAuth token")
             return nil
         }
 
@@ -33,6 +34,7 @@ final class OAuth2Service {
         ]
 
         guard let authTokenUrl = urlComponents.url else {
+            print("Failed to create OAuth token URL from URLComponents")
             return nil
         }
 
@@ -43,6 +45,7 @@ final class OAuth2Service {
 
     func fetchOAuthToken(code: String, completion: @escaping (Result<String, Error>) -> Void) {
         guard let request = makeOAuthTokenRequest(code: code) else {
+            print("Failed to create OAuth token URLRequest")
             completion(.failure(NetworkError.invalidRequest))
             return
         }
@@ -55,6 +58,7 @@ final class OAuth2Service {
                     let responseBody = try decoder.decode(OAuthTokenResponseBody.self, from: data)
                     completion(.success(responseBody.access_token))
                 } catch {
+                    print("Failed to decode OAuth token response: \(error)")
                     completion(.failure(NetworkError.decodingError(error)))
                 }
             case .failure(let error):

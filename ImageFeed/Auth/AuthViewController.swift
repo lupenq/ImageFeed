@@ -51,15 +51,14 @@ final class AuthViewController: UIViewController {
 extension AuthViewController: WebViewViewControllerDelegate {
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
         oauth2Service.fetchOAuthToken(code: code, completion: { [weak self] result in
-            guard self != nil else { return }
+            guard let self = self else { return }
             switch result {
             case .success:
                 DispatchQueue.main.async {
                     print("Successfully fetched OAuth token")
-//                    self.performSegue(withIdentifier: "ShowTabBar", sender: nil)
-                    self?.oauth2TokenStorage.token = try? result.get()
-                    self?.delegate?.didAuthenticate(self!)
-                    print("Token stored: \(String(describing: self?.oauth2TokenStorage.token))")
+                    self.oauth2TokenStorage.token = try? result.get()
+                    self.delegate?.didAuthenticate(self)
+                    print("Token stored: \(String(describing: self.oauth2TokenStorage.token))")
                     vc.dismiss(animated: true)
                 }
             case .failure(let error):
