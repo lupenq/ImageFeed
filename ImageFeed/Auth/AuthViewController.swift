@@ -5,6 +5,7 @@
 //  Created by Ilia Degtiarev on 24.01.26.
 //
 
+import ProgressHUD
 import UIKit
 
 protocol AuthViewControllerDelegate: AnyObject {
@@ -46,12 +47,27 @@ final class AuthViewController: UIViewController {
         navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil) // 3
         navigationItem.backBarButtonItem?.tintColor = UIColor(named: "YP Black") // 4
     }
+
+    private func showAuthErrorAlert() {
+        let alert = UIAlertController(
+            title: "Что-то пошло не так",
+            message: "Не удалось войти в систему",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "Ок", style: .default))
+        present(alert, animated: true)
+    }
 }
 
 extension AuthViewController: WebViewViewControllerDelegate {
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
-        oauth2Service.fetchOAuthToken(code: code, completion: { [weak self] result in
+        UIBlockingProgressHUD.show()
+
+        oauth2Service.fetchOAuthToken(code, completion: { [weak self] result in
             guard let self = self else { return }
+
+            UIBlockingProgressHUD.dismiss()
+
             switch result {
             case .success:
                 DispatchQueue.main.async {
@@ -61,8 +77,10 @@ extension AuthViewController: WebViewViewControllerDelegate {
                     print("Token stored: \(String(describing: self.oauth2TokenStorage.token))")
                     vc.dismiss(animated: true)
                 }
-            case .failure(let error):
-                print("Failed to fetch OAuth token: \(error)")
+            case .failure:
+                DispatchQueue.main.async {
+                    self.showAuthErrorAlert()
+                }
             }
         })
     }
