@@ -41,6 +41,9 @@
                                                     <rect key="frame" x="349" y="0.0" width="44" height="44"/>
                                                     <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                                     <state key="normal" image="Favorite Active"/>
+                                                    <connections>
+                                                        <action selector="likeButtonClicked" destination="dtB-Up-9lH" eventType="touchUpInside" id="lke-btn-act"/>
+                                                    </connections>
                                                 </button>
                                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Wxj-QO-b16" userLabel="Gradient">
                                                     <rect key="frame" x="20" y="260" width="353" height="30"/>
