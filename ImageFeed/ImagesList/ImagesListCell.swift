@@ -5,17 +5,33 @@
 //  Created by Ilia Degtiarev on 26.12.25.
 //
 
+import Kingfisher
 import UIKit
+
+protocol ImagesListCellDelegate: AnyObject {
+    func imageListCellDidTapLike(_ cell: ImagesListCell)
+}
 
 final class ImagesListCell: UITableViewCell {
     static let reuseIdentifier = "ImagesListCell"
 
     private let gradientLayer = CAGradientLayer()
 
+    weak var delegate: ImagesListCellDelegate?
+
     @IBOutlet var imageCellView: UIImageView!
     @IBOutlet var likeButtonView: UIButton!
     @IBOutlet var dateLabelView: UILabel!
     @IBOutlet var gradientView: UIView!
+
+    @IBAction private func likeButtonClicked() {
+        delegate?.imageListCellDidTapLike(self)
+    }
+
+    func setIsLiked(_ isLiked: Bool) {
+        let likeImage = isLiked ? UIImage(named: "Favorite Active") : UIImage(named: "Favorite Inactive")
+        likeButtonView.setImage(likeImage, for: .normal)
+    }
 
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -53,5 +69,10 @@ final class ImagesListCell: UITableViewCell {
         CATransaction.setDisableActions(true)
         gradientLayer.frame = gradientView.bounds
         CATransaction.commit()
+    }
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        imageCellView.kf.cancelDownloadTask()
     }
 }

@@ -135,9 +135,26 @@ class ProfileViewController: UIViewController {
 
         logoutButton.translatesAutoresizingMaskIntoConstraints = false
 
+        logoutButton.addAction(UIAction { [weak self] _ in
+            self?.logoutButtonTapped()
+        }, for: .touchUpInside)
+
         view.addSubview(logoutButton)
 
         logoutButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16).isActive = true
         logoutButton.centerYAnchor.constraint(equalTo: imageView.centerYAnchor).isActive = true
+    }
+
+    private func logoutButtonTapped() {
+        let alert = UIAlertController(
+            title: "Пока, пока!",
+            message: "Уверены, что хотите выйти?",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "Нет", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Да", style: .default) { _ in
+            ProfileLogoutService.shared.logout()
+        })
+        present(alert, animated: true)
     }
 }

@@ -5,17 +5,20 @@
 //  Created by Ilia Degtiarev on 17.01.26.
 //
 
+import Kingfisher
 import UIKit
 
 final class SingleImageViewController: UIViewController {
     var image: UIImage? {
         didSet {
-            guard isViewLoaded else { return } // 1
-            imageView.image = image // 2
-            imageView.frame.size = image?.size ?? CGSize.zero // 3
-            rescaleAndCenterImageInScrollView(image: image ?? UIImage()) // 4
+            guard isViewLoaded else { return }
+            imageView.image = image
+            imageView.frame.size = image?.size ?? CGSize.zero
+            rescaleAndCenterImageInScrollView(image: image ?? UIImage())
         }
     }
+
+    var imageURL: URL?
 
     @IBOutlet private var imageView: UIImageView!
 
@@ -23,12 +26,47 @@ final class SingleImageViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        imageView.image = image
-
-        rescaleAndCenterImageInScrollView(image: image ?? UIImage())
 
         scrollView.minimumZoomScale = 0.1
         scrollView.maximumZoomScale = 1.25
+
+        if let image {
+            imageView.image = image
+            rescaleAndCenterImageInScrollView(image: image)
+        } else if imageURL != nil {
+            loadImage()
+        }
+    }
+
+    private func loadImage() {
+        guard let fullImageURL = imageURL else { return }
+
+        UIBlockingProgressHUD.show()
+        imageView.kf.setImage(with: fullImageURL) { [weak self] result in
+            UIBlockingProgressHUD.dismiss()
+
+            guard let self else { return }
+            switch result {
+            case .success(let imageResult):
+                self.imageView.frame.size = imageResult.image.size
+                self.rescaleAndCenterImageInScrollView(image: imageResult.image)
+            case .failure:
+                self.showError()
+            }
+        }
+    }
+
+    private func showError() {
+        let alert = UIAlertController(
+            title: nil,
+            message: "Что-то пошло не так. Попробовать ещё раз?",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "Не надо", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Повторить", style: .default) { [weak self] _ in
+            self?.loadImage()
+        })
+        present(alert, animated: true)
     }
 
     @IBAction private func didTapBackButton() {

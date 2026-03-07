@@ -91,6 +91,13 @@ final class ImagesListService {
 
     private init() {}
 
+    func reset() {
+        task?.cancel()
+        task = nil
+        photos = []
+        lastLoadedPage = 0
+    }
+
     func fetchPhotosNextPage() {
         guard task == nil else { return }
 
@@ -111,12 +118,56 @@ final class ImagesListService {
                     )
                 }
             case .failure(let error):
-                print("[ImagesListService fetchPhotosNextPage]: failure - \(error.localizedDescription)")
+                print("[ImagesListService fetchPhotosNextPage]: failure - page: \(nextPage), error: \(error.localizedDescription)")
             }
             self.task = nil
         }
 
         self.task = task
+        task.resume()
+    }
+
+    func changeLike(photoId: String, isLike: Bool, _ completion: @escaping (Result<Void, Error>) -> Void) {
+        guard let token = OAuth2TokenStorage.shared.token,
+              let url = URL(string: "\(Constants.defaultBaseURLString)/photos/\(photoId)/like")
+        else {
+            completion(.failure(NetworkError.invalidRequest))
+            return
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = isLike ? "POST" : "DELETE"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+
+        let task = urlSession.data(for: request) { [weak self] result in
+            guard let self else { return }
+            switch result {
+            case .success:
+                DispatchQueue.main.async {
+                    if let index = self.photos.firstIndex(where: { $0.id == photoId }) {
+                        let photo = self.photos[index]
+                        let newPhoto = Photo(
+                            id: photo.id,
+                            size: photo.size,
+                            createdAt: photo.createdAt,
+                            welcomeDescription: photo.welcomeDescription,
+                            thumbImageURL: photo.thumbImageURL,
+                            largeImageURL: photo.largeImageURL,
+                            isLiked: !photo.isLiked
+                        )
+                        self.photos[index] = newPhoto
+                        NotificationCenter.default.post(
+                            name: ImagesListService.didChangeNotification,
+                            object: self
+                        )
+                    }
+                    completion(.success(()))
+                }
+            case .failure(let error):
+                print("[ImagesListService changeLike]: failure - photoId: \(photoId), isLike: \(isLike), error: \(error.localizedDescription)")
+                completion(.failure(error))
+            }
+        }
         task.resume()
     }
 
