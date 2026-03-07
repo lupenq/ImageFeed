@@ -5,6 +5,7 @@
 //  Created by Ilia Degtiarev on 17.01.26.
 //
 
+import Kingfisher
 import UIKit
 
 class ProfileViewController: UIViewController {
@@ -14,21 +15,65 @@ class ProfileViewController: UIViewController {
     var descriptionLabel: UILabel!
     var logoutButton: UIButton!
 
+    private let profileService = ProfileService.shared
+
+    private var profileImageServiceObserver: NSObjectProtocol?
+
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        view.backgroundColor = UIColor(named: "YP Black")
 
         renderUserpic()
         renderFullName()
         renderLoginLabel()
         renderDescriptionLabel()
         renderLogoutButton()
+
+        if let profile = profileService.profile {
+            updateProfileDetails(with: profile)
+        }
+
+        profileImageServiceObserver = NotificationCenter.default
+            .addObserver(
+                forName: ProfileImageService.didChangeNotification,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                guard let self = self else { return }
+                self.updateAvatar()
+            }
+        updateAvatar()
+    }
+
+    private func updateAvatar() {
+        guard
+            let profileImageURL = ProfileImageService.shared.avatarURL,
+            let url = URL(string: profileImageURL)
+        else { return }
+
+        imageView.kf.setImage(with: url)
+    }
+
+    private func updateProfileDetails(with profile: Profile) {
+        fullNameLabel.text = profile.name.isEmpty
+            ? "Имя не указано"
+            : profile.name
+        loginLabel.text = profile.loginName.isEmpty
+            ? "@неизвестный_пользователь"
+            : profile.loginName
+        descriptionLabel.text = (profile.bio?.isEmpty ?? true)
+            ? "Профиль не заполнен"
+            : profile.bio
     }
 
     func renderUserpic() {
         let profileImage = UIImage(named: "UserPic")
 
         imageView = UIImageView(image: profileImage)
-
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        imageView.layer.cornerRadius = imageView.frame.width / 2
         imageView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(imageView)
 
@@ -41,7 +86,6 @@ class ProfileViewController: UIViewController {
     func renderFullName() {
         fullNameLabel = UILabel()
 
-        fullNameLabel.text = "Екатерина Новикова"
         fullNameLabel.font = UIFont.systemFont(ofSize: 23, weight: .bold)
         fullNameLabel.textColor = UIColor(named: "YP White")
 
@@ -56,7 +100,6 @@ class ProfileViewController: UIViewController {
     func renderLoginLabel() {
         loginLabel = UILabel()
 
-        loginLabel.text = "@ekaterina_nov"
         loginLabel.font = UIFont.systemFont(ofSize: 13, weight: .regular)
         loginLabel.textColor = UIColor(named: "YP Gray")
 
@@ -71,7 +114,6 @@ class ProfileViewController: UIViewController {
     func renderDescriptionLabel() {
         descriptionLabel = UILabel()
 
-        descriptionLabel.text = "Hello, world!"
         descriptionLabel.font = UIFont.systemFont(ofSize: 13, weight: .regular)
         descriptionLabel.textColor = UIColor(named: "YP White")
         descriptionLabel.numberOfLines = 0
